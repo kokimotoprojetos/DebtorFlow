@@ -5,46 +5,101 @@ import Dashboard from './pages/Dashboard';
 import Debtors from './pages/Debtors';
 import SettleDebt from './pages/SettleDebt';
 import Reports from './pages/Reports';
-import { MOCK_DEBTORS } from './constants';
 import { Debtor, HistoryEntry, DebtItem, DebtCategory, DebtorStatus } from './types';
+import { supabase } from './supabase';
 
 function App() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'debtors' | 'settle' | 'reports'>('landing');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [debtors, setDebtors] = useState<Debtor[]>(MOCK_DEBTORS);
+  const [debtors, setDebtors] = useState<Debtor[]>([]);
   const [selectedDebtorId, setSelectedDebtorId] = useState<string | null>(null);
-  const [history, setHistory] = useState<HistoryEntry[]>([
-    {
-      id: 'h1',
-      debtorId: '49201',
-      debtorName: 'Acme Corp',
-      type: 'Divida',
-      category: DebtCategory.PRODUTO,
-      amount: 12500,
-      date: '2023-10-24',
-      description: 'Lote de Hardware Inicial'
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch debtors with their debts
+      const { data: debtorsData, error: debtorsError } = await supabase
+        .from('debtors')
+        .select('*, debts(*)');
+
+      if (debtorsError) throw debtorsError;
+
+      // Fetch history
+      const { data: historyData, error: historyError } = await supabase
+        .from('history_entries')
+        .select('*')
+        .order('date', { ascending: false });
+
+      if (historyError) throw historyError;
+
+      // Transform data to match local types
+      const formattedDebtors: Debtor[] = (debtorsData || []).map(d => ({
+        id: d.id,
+        name: d.name,
+        email: d.email || '',
+        phone: d.phone || '',
+        status: d.status as DebtorStatus,
+        avatar: d.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.name)}&background=random`,
+        debts: (d.debts || []).map((debt: any) => ({
+          id: debt.id,
+          category: debt.category as DebtCategory,
+          description: debt.description || '',
+          amount: Number(debt.amount),
+          date: debt.date,
+          dueDate: debt.due_date
+        }))
+      }));
+
+      const formattedHistory: HistoryEntry[] = (historyData || []).map(h => ({
+        id: h.id,
+        debtorId: h.debtor_id,
+        debtorName: formattedDebtors.find(d => d.id === h.debtor_id)?.name || 'Devedor Desconhecido',
+        type: h.type as 'Divida' | 'Pagamento',
+        category: h.category as DebtCategory | 'Sistema',
+        amount: Number(h.amount),
+        date: h.date,
+        description: h.description || ''
+      }));
+
+      setDebtors(formattedDebtors);
+      setHistory(formattedHistory);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Efeito para verificar dívidas atrasadas
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    
-    setDebtors(prev => prev.map(debtor => {
-      if (debtor.status === DebtorStatus.PAGO || debtor.debts.length === 0) return debtor;
+    if (debtors.length === 0) return;
 
-      const hasOverdueDebt = debtor.debts.some(debt => debt.dueDate < today);
-      
-      if (hasOverdueDebt && debtor.status !== DebtorStatus.ATRASADO) {
-        return { ...debtor, status: DebtorStatus.ATRASADO };
-      } else if (!hasOverdueDebt && debtor.status === DebtorStatus.ATRASADO) {
-        // Se antes estava atrasado mas agora as datas são futuras (ex: editado), volta para Ativo
-        return { ...debtor, status: DebtorStatus.ATIVO };
+    const today = new Date().toISOString().split('T')[0];
+    const updateOverdue = async () => {
+      const updates = debtors
+        .filter(debtor => {
+          if (debtor.status === DebtorStatus.PAGO || debtor.debts.length === 0) return false;
+          const hasOverdueDebt = debtor.debts.some(debt => debt.dueDate < today);
+          return hasOverdueDebt && debtor.status !== DebtorStatus.ATRASADO;
+        })
+        .map(debtor => ({ id: debtor.id, status: DebtorStatus.ATRASADO }));
+
+      if (updates.length > 0) {
+        for (const update of updates) {
+          await supabase.from('debtors').update({ status: update.status }).eq('id', update.id);
+        }
+        fetchData();
       }
-      
-      return debtor;
-    }));
-  }, []); // Executa uma vez ao montar o app
+    };
+
+    updateOverdue();
+  }, [debtors]);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -68,75 +123,122 @@ function App() {
     window.scrollTo(0, 0);
   };
 
-  const addDebtor = (newDebtor: Debtor) => {
-    setDebtors(prev => [newDebtor, ...prev]);
-    const initialDebt = newDebtor.debts[0];
-    const entry: HistoryEntry = {
-      id: 'h-' + Date.now(),
-      debtorId: newDebtor.id,
-      debtorName: newDebtor.name,
-      type: 'Divida',
-      category: initialDebt.category,
-      amount: initialDebt.amount,
-      date: initialDebt.date,
-      description: `Cadastro Inicial: ${initialDebt.description}`
-    };
-    setHistory(prev => [entry, ...prev]);
-  };
+  const addDebtor = async (newDebtor: Debtor) => {
+    try {
+      const { data: debtorData, error: debtorError } = await supabase
+        .from('debtors')
+        .insert([{
+          name: newDebtor.name,
+          email: newDebtor.email,
+          phone: newDebtor.phone,
+          status: newDebtor.status,
+          avatar: newDebtor.avatar
+        }])
+        .select()
+        .single();
 
-  const addDebtToDebtor = (debtorId: string, newDebt: DebtItem) => {
-    const today = new Date().toISOString().split('T')[0];
-    const targetDebtor = debtors.find(d => d.id === debtorId);
-    
-    setDebtors(prev => prev.map(d => {
-      if (d.id === debtorId) {
-        const updatedDebts = [...d.debts, newDebt];
-        const isOverdue = updatedDebts.some(debt => debt.dueDate < today);
-        return { 
-          ...d, 
-          debts: updatedDebts, 
-          status: isOverdue ? DebtorStatus.ATRASADO : DebtorStatus.ATIVO 
-        };
-      }
-      return d;
-    }));
+      if (debtorError) throw debtorError;
 
-    if (targetDebtor) {
-      const entry: HistoryEntry = {
-        id: 'h-' + Date.now(),
-        debtorId: debtorId,
-        debtorName: targetDebtor.name,
-        type: 'Divida',
-        category: newDebt.category,
-        amount: newDebt.amount,
-        date: newDebt.date,
-        description: newDebt.description
-      };
-      setHistory(prev => [entry, ...prev]);
+      const initialDebt = newDebtor.debts[0];
+      const { error: debtError } = await supabase
+        .from('debts')
+        .insert([{
+          debtor_id: debtorData.id,
+          amount: initialDebt.amount,
+          description: initialDebt.description,
+          category: initialDebt.category,
+          date: initialDebt.date,
+          due_date: initialDebt.dueDate
+        }]);
+
+      if (debtError) throw debtError;
+
+      const { error: historyError } = await supabase
+        .from('history_entries')
+        .insert([{
+          debtor_id: debtorData.id,
+          type: 'Divida',
+          category: initialDebt.category,
+          amount: initialDebt.amount,
+          date: initialDebt.date,
+          description: `Cadastro Inicial: ${initialDebt.description}`
+        }]);
+
+      if (historyError) throw historyError;
+
+      fetchData();
+    } catch (error) {
+      console.error('Error adding debtor:', error);
     }
   };
 
-  const registerPayment = (debtorId: string, amount: number, description: string) => {
-    const targetDebtor = debtors.find(d => d.id === debtorId);
-    if (targetDebtor) {
-      setDebtors(prev => prev.map(d => {
-        if (d.id === debtorId) {
-          return { ...d, debts: [], status: DebtorStatus.PAGO };
-        }
-        return d;
-      }));
+  const addDebtToDebtor = async (debtorId: string, newDebt: DebtItem) => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
 
-      const entry: HistoryEntry = {
-        id: 'h-' + Date.now(),
-        debtorId: debtorId,
-        debtorName: targetDebtor.name,
-        type: 'Pagamento',
-        category: DebtCategory.OUTROS,
-        amount: amount,
-        date: new Date().toISOString().split('T')[0],
-        description: description
-      };
-      setHistory(prev => [entry, ...prev]);
+      const { error: debtError } = await supabase
+        .from('debts')
+        .insert([{
+          debtor_id: debtorId,
+          amount: newDebt.amount,
+          description: newDebt.description,
+          category: newDebt.category,
+          date: newDebt.date,
+          due_date: newDebt.dueDate
+        }]);
+
+      if (debtError) throw debtError;
+
+      if (newDebt.dueDate < today) {
+        await supabase.from('debtors').update({ status: DebtorStatus.ATRASADO }).eq('id', debtorId);
+      }
+
+      const { error: historyError } = await supabase
+        .from('history_entries')
+        .insert([{
+          debtor_id: debtorId,
+          type: 'Divida',
+          category: newDebt.category,
+          amount: newDebt.amount,
+          date: newDebt.date,
+          description: newDebt.description
+        }]);
+
+      if (historyError) throw historyError;
+
+      fetchData();
+    } catch (error) {
+      console.error('Error adding debt:', error);
+    }
+  };
+
+  const registerPayment = async (debtorId: string, amount: number, description: string) => {
+    try {
+      const { error: settleError } = await supabase
+        .from('debts')
+        .delete()
+        .eq('debtor_id', debtorId);
+
+      if (settleError) throw settleError;
+
+      await supabase.from('debtors').update({ status: DebtorStatus.PAGO }).eq('id', debtorId);
+
+      const { error: historyError } = await supabase
+        .from('history_entries')
+        .insert([{
+          debtor_id: debtorId,
+          type: 'Pagamento',
+          category: DebtCategory.OUTROS,
+          amount: amount,
+          date: new Date().toISOString().split('T')[0],
+          description: description
+        }]);
+
+      if (historyError) throw historyError;
+
+      fetchData();
+    } catch (error) {
+      console.error('Error registering payment:', error);
     }
   };
 
@@ -159,7 +261,16 @@ function App() {
 
   return (
     <div className="min-h-screen">
-      {renderView()}
+      {isLoading ? (
+        <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-background-dark z-50">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-slate-600 dark:text-slate-400 font-medium">Carregando dados...</p>
+          </div>
+        </div>
+      ) : (
+        renderView()
+      )}
     </div>
   );
 }
