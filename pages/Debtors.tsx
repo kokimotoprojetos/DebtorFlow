@@ -102,25 +102,25 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
             <h2 className="text-xl font-bold dark:text-white hidden sm:block">Dívidas Ativas</h2>
             <h2 className="text-xl font-bold dark:text-white sm:hidden">Dívidas</h2>
           </div>
-          <div className="flex items-center gap-4">
-            <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
+          <div className="flex items-center gap-2 md:gap-4">
+            <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-1 md:p-2">
               <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
             </button>
             {onLogout && (
               <button
                 onClick={onLogout}
-                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
+                className="flex items-center gap-2 px-2 md:px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
                 title="Sair da Conta"
               >
                 <span className="material-symbols-outlined text-[20px]">logout</span>
-                <span className="text-xs font-bold hidden sm:inline">Sair</span>
+                <span className="text-[10px] md:text-sm font-bold hidden sm:inline">Sair</span>
               </button>
             )}
-            <button onClick={() => setShowDebtorModal(true)} className="bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm">+ Novo Devedor</button>
+            <button onClick={() => setShowDebtorModal(true)} className="bg-primary text-white px-3 md:px-4 py-2 rounded-lg font-bold text-[10px] md:text-sm">+ Novo <span className="hidden xs:inline">Devedor</span></button>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-10">
+        <div className="flex-1 overflow-y-auto p-4 md:p-10">
           <div className="max-w-6xl mx-auto flex flex-col gap-8">
             <div className="flex flex-col lg:flex-row gap-4 justify-between bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
               <div className="relative flex-1">
@@ -147,7 +147,8 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
             </div>
 
             <div className="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-              <table className="w-full text-left">
+              {/* Desktop Table View */}
+              <table className="w-full text-left hidden md:table">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-800/50 border-b dark:border-gray-800">
                     <th className="py-4 px-6 text-xs font-bold text-gray-400 uppercase">Devedor</th>
@@ -206,6 +207,67 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                   })}
                 </tbody>
               </table>
+
+              {/* Mobile Card View */}
+              <div className="flex flex-col md:hidden divide-y divide-gray-100 dark:divide-gray-800">
+                {filteredDebtors.map((d) => {
+                  const total = d.debts.reduce((acc, curr) => acc + curr.amount, 0);
+                  const nextDue = d.debts.length > 0 ? d.debts.reduce((prev, curr) => prev.dueDate < curr.dueDate ? prev : curr).dueDate : '-';
+                  const isOverdue = nextDue !== '-' && nextDue < new Date().toISOString().split('T')[0];
+
+                  return (
+                    <div key={d.id} className="p-4 flex flex-col gap-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <img src={d.avatar} className="size-10 rounded-full" />
+                          <div className="flex flex-col">
+                            <span className="font-bold text-navy dark:text-white text-sm">{d.name}</span>
+                            <span className="text-gray-400 text-xs">{d.email}</span>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${d.status === 'Atrasado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                          {d.status}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase">Dívida Total</span>
+                          <span className="font-mono font-bold text-sm dark:text-white">R$ {total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase">Vencimento</span>
+                          <span className={`text-xs font-bold ${isOverdue ? 'text-red-500' : 'text-gray-500'}`}>
+                            {nextDue}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 mt-2">
+                        <button
+                          onClick={() => { setSelectedDebtorId(d.id); setShowDebtModal(true); }}
+                          className="flex-1 text-center py-2 text-xs font-bold text-primary bg-primary/5 rounded-lg border border-primary/10"
+                        >
+                          + Dívida
+                        </button>
+                        <button
+                          onClick={() => navigate('settle', d.id)}
+                          className="flex-1 text-center py-2 text-xs font-bold text-white bg-navy dark:bg-gray-700 rounded-lg"
+                        >
+                          Acertar Contas
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {filteredDebtors.length === 0 && (
+                <div className="py-20 text-center text-gray-400">
+                  <span className="material-symbols-outlined text-5xl mb-2">search_off</span>
+                  <p>Nenhum devedor encontrado.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

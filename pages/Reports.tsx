@@ -58,27 +58,27 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
             <h2 className="text-xl font-bold dark:text-white hidden sm:block">Relatórios Gerais</h2>
             <h2 className="text-xl font-bold dark:text-white sm:hidden">Relatórios</h2>
           </div>
-          <div className="flex items-center gap-4">
-            <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
+          <div className="flex items-center gap-2 md:gap-4">
+            <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-1 md:p-2">
               <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
             </button>
             {onLogout && (
               <button
                 onClick={onLogout}
-                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
+                className="flex items-center gap-2 px-2 md:px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
                 title="Sair da Conta"
               >
                 <span className="material-symbols-outlined text-[20px]">logout</span>
-                <span className="text-xs font-bold hidden sm:inline">Sair</span>
+                <span className="text-[10px] md:text-sm font-bold hidden sm:inline">Sair</span>
               </button>
             )}
-            <button className="bg-emerald-accent text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">download</span> Exportar CSV
+            <button className="bg-emerald-accent text-white px-3 md:px-4 py-2 rounded-lg font-bold text-[10px] md:text-sm flex items-center gap-1 md:gap-2">
+              <span className="material-symbols-outlined text-[18px]">download</span> <span className="hidden xs:inline">Exportar</span> CSV
             </button>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-10">
+        <div className="flex-1 overflow-y-auto p-4 md:p-10">
           <div className="max-w-6xl mx-auto flex flex-col gap-8">
 
             {/* Cards de Resumo do Período */}
@@ -94,24 +94,24 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
             </div>
 
             {/* Filtros */}
-            <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col gap-6">
-              <div className="flex flex-wrap gap-6 items-end">
+            <div className="bg-white dark:bg-surface-dark p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:flex lg:flex-wrap gap-4 md:gap-6 items-end">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Data Inicial</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">Início</label>
                   <input
                     type="date"
                     value={dateStart}
                     onChange={e => setDateStart(e.target.value)}
-                    className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm"
+                    className="h-10 w-full rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-[11px] md:text-sm"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Data Final</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase">Fim</label>
                   <input
                     type="date"
                     value={dateEnd}
                     onChange={e => setDateEnd(e.target.value)}
-                    className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm"
+                    className="h-10 w-full rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-[11px] md:text-sm"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -119,11 +119,11 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                   <select
                     value={typeFilter}
                     onChange={e => setTypeFilter(e.target.value as any)}
-                    className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm min-w-[140px]"
+                    className="h-10 w-full rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-[11px] md:text-sm lg:min-w-[140px]"
                   >
-                    <option value="Todos">Todos os tipos</option>
-                    <option value="Divida">Apenas Dívidas</option>
-                    <option value="Pagamento">Apenas Pagamentos</option>
+                    <option value="Todos">Todos</option>
+                    <option value="Divida">Dívidas</option>
+                    <option value="Pagamento">Pagamentos</option>
                   </select>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -131,24 +131,25 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                   <select
                     value={categoryFilter}
                     onChange={e => setCategoryFilter(e.target.value)}
-                    className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm min-w-[140px]"
+                    className="h-10 w-full rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-[11px] md:text-sm lg:min-w-[140px]"
                   >
-                    <option value="Todas">Todas categorias</option>
+                    <option value="Todas">Todas</option>
                     {Object.values(DebtCategory).map(cat => <option key={cat} value={cat}>{cat}</option>)}
                   </select>
                 </div>
-                <button
-                  onClick={() => { setDateStart(''); setDateEnd(''); setTypeFilter('Todos'); setCategoryFilter('Todas'); }}
-                  className="h-10 px-4 text-xs font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                >
-                  Limpar Filtros
-                </button>
               </div>
+              <button
+                onClick={() => { setDateStart(''); setDateEnd(''); setTypeFilter('Todos'); setCategoryFilter('Todas'); }}
+                className="w-full md:w-auto h-10 px-4 text-xs font-bold text-primary hover:bg-primary/5 rounded-lg border border-primary/10 transition-colors"
+              >
+                Limpar Filtros
+              </button>
             </div>
 
             {/* Tabela de Histórico */}
             <div className="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-              <table className="w-full text-left">
+              {/* Desktop Table */}
+              <table className="w-full text-left hidden md:table">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-800/50 border-b dark:border-gray-800">
                     <th className="py-4 px-6 text-xs font-bold text-gray-400 uppercase">Data</th>
@@ -189,12 +190,45 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                     <tr>
                       <td colSpan={5} className="py-20 text-center text-gray-400">
                         <span className="material-symbols-outlined text-5xl mb-2">search_off</span>
-                        <p>Nenhum registro encontrado para os filtros selecionados.</p>
+                        <p>Nenhum registro encontrado.</p>
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
+
+              {/* Mobile Card List */}
+              <div className="flex flex-col md:hidden divide-y divide-gray-100 dark:divide-gray-800">
+                {filteredHistory.length > 0 ? filteredHistory.map((entry) => (
+                  <div key={entry.id} className="p-4 flex flex-col gap-3">
+                    <div className="flex justify-between items-start">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-mono text-gray-400">{entry.date}</span>
+                        <span className="font-bold text-navy dark:text-white text-sm">{entry.debtorName}</span>
+                      </div>
+                      <span className={`font-mono font-bold text-sm ${entry.type === 'Divida' ? 'text-red-500' : 'text-emerald-500'}`}>
+                        {entry.type === 'Divida' ? '-' : '+'} R$ {entry.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`material-symbols-outlined text-[16px] ${entry.type === 'Divida' ? 'text-red-400' : 'text-emerald-400'}`}>
+                        {entry.type === 'Divida' ? 'trending_down' : 'trending_up'}
+                      </span>
+                      <span className="text-[10px] font-bold text-gray-500 uppercase">{entry.type} • {entry.category}</span>
+                    </div>
+                    {entry.description && (
+                      <p className="text-[11px] text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 p-2 rounded">
+                        {entry.description}
+                      </p>
+                    )}
+                  </div>
+                )) : (
+                  <div className="py-16 text-center text-gray-400">
+                    <span className="material-symbols-outlined text-4xl mb-2">search_off</span>
+                    <p className="text-sm">Nenhum registro.</p>
+                  </div>
+                )}
+              </div>
             </div>
 
           </div>

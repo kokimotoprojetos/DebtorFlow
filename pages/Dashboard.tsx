@@ -80,7 +80,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
             >
               <span className="material-symbols-outlined text-[28px]">menu</span>
             </button>
-            <h1 className="text-xl font-bold text-navy dark:text-white">Início</h1>
+            <h1 className="text-xl font-bold text-navy dark:text-white truncate max-w-[120px]">Início</h1>
           </div>
           <div className="hidden lg:flex items-center gap-4 w-full max-w-sm">
             <div className="flex w-full items-center rounded-lg h-10 border border-[#e5e7eb] dark:border-[#2d3748] overflow-hidden bg-surface-light dark:bg-surface-dark transition-all">
@@ -88,27 +88,24 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
               <input className="flex-1 bg-transparent border-none text-sm focus:outline-0 placeholder:text-[#637588] dark:text-white" placeholder="Buscar devedor..." />
             </div>
           </div>
-          <div className="flex items-center justify-end gap-3 font-display">
-            <button onClick={toggleDarkMode} className="p-2 rounded-lg text-[#637588] dark:text-[#9ca3af] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
-            </button>
-            <button className="relative p-2 rounded-lg text-[#637588] dark:text-[#9ca3af] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              <span className="material-symbols-outlined">notifications</span>
+          <div className="flex items-center justify-end gap-2 md:gap-3 font-display">
+            <button onClick={toggleDarkMode} className="p-1.5 md:p-2 rounded-lg text-[#637588] dark:text-[#9ca3af] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <span className="material-symbols-outlined text-[22px] md:text-[24px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
             </button>
 
             {onLogout && (
               <button
                 onClick={onLogout}
-                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all border border-red-200 dark:border-red-900/30 shadow-sm active:scale-95"
+                className="flex items-center gap-2 px-2 md:px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all border border-red-200 dark:border-red-900/30 shadow-sm active:scale-95"
               >
                 <span className="material-symbols-outlined text-[20px]">logout</span>
-                <span className="text-xs font-bold sm:inline">Sair</span>
+                <span className="text-[10px] md:text-sm font-bold hidden xs:inline">Sair</span>
               </button>
             )}
 
-            <button onClick={() => navigate('debtors')} className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold transition-all text-sm shadow-lg shadow-primary/20 active:scale-95">
-              <span className="material-symbols-outlined text-[20px]">add</span>
-              <span className="hidden sm:block">Novo Registro</span>
+            <button onClick={() => navigate('debtors')} className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold transition-all text-[10px] md:text-sm shadow-lg shadow-primary/20 active:scale-95">
+              <span className="material-symbols-outlined text-[18px] md:text-[20px]">add</span>
+              <span className="hidden xs:block">Novo</span>
             </button>
           </div>
         </header>
@@ -122,21 +119,21 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
               <p className="text-[#637588] dark:text-[#9ca3af] mt-1 font-medium">Aqui estão os dados reais da sua carteira no Supabase.</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: 'Carteira Total (Ativa)', val: `R$ ${stats.totalActiveDebt.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: 'account_balance', iconColor: 'text-primary' },
+                { label: 'Carteira Total', val: `R$ ${stats.totalActiveDebt.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: 'account_balance', iconColor: 'text-primary' },
                 { label: 'Total Recebido', val: `R$ ${stats.totalReceived.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: 'savings', iconColor: 'text-emerald-accent' },
-                { label: 'Devedores em Atraso', val: stats.overdueDebtors.toString(), icon: 'error_outline', iconColor: 'text-red-500' },
-                { label: 'Taxa de Pagamento', val: `${stats.successRate}%`, icon: 'analytics', iconColor: 'text-blue-500' },
+                { label: 'Em Atraso', val: stats.overdueDebtors.toString(), icon: 'error_outline', iconColor: 'text-red-500' },
+                { label: 'Taxa Paga', val: `${stats.successRate}%`, icon: 'analytics', iconColor: 'text-blue-500' },
               ].map((kpi, idx) => (
-                <div key={idx} className="bg-surface-light dark:bg-surface-dark p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-2 transition-all hover:shadow-md">
+                <div key={idx} className="bg-surface-light dark:bg-surface-dark p-4 md:p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-1 md:gap-2 transition-all hover:shadow-md">
                   <div className="flex justify-between items-center">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{kpi.label}</p>
-                    <div className={`w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-900 flex items-center justify-center`}>
-                      <span className={`material-symbols-outlined text-[20px] ${kpi.iconColor || 'text-gray-400'}`}>{kpi.icon}</span>
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest truncate">{kpi.label}</p>
+                    <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg bg-slate-50 dark:bg-slate-900 flex items-center justify-center`}>
+                      <span className={`material-symbols-outlined text-[18px] md:text-[20px] ${kpi.iconColor || 'text-gray-400'}`}>{kpi.icon}</span>
                     </div>
                   </div>
-                  <p className="text-2xl font-black text-navy dark:text-white tracking-tight">{kpi.val}</p>
+                  <p className="text-xl md:text-2xl font-black text-navy dark:text-white tracking-tight">{kpi.val}</p>
                 </div>
               ))}
             </div>
