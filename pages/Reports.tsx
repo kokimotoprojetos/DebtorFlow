@@ -72,9 +72,6 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                 <span className="text-[10px] md:text-sm font-bold hidden sm:inline">Sair</span>
               </button>
             )}
-            <button className="bg-emerald-accent text-white px-3 md:px-4 py-2 rounded-lg font-bold text-[10px] md:text-sm flex items-center gap-1 md:gap-2">
-              <span className="material-symbols-outlined text-[18px]">download</span> <span className="hidden xs:inline">Exportar</span> CSV
-            </button>
           </div>
         </header>
 
