@@ -14,6 +14,8 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkMode, debtors, history, onLogout, userEmail }) => {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
   const stats = useMemo(() => {
     // Total portfolio value
     const totalActiveDebt = debtors.reduce((acc, d) => acc + d.debts.reduce((sum, item) => sum + item.amount, 0), 0);
@@ -57,15 +59,28 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark">
-      <AdminSidebar current="dashboard" onNavigate={navigate} onLogout={onLogout} userEmail={userEmail} />
+      <AdminSidebar
+        current="dashboard"
+        onNavigate={navigate}
+        onLogout={onLogout}
+        userEmail={userEmail}
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
 
       <main className="flex flex-1 flex-col h-full overflow-hidden relative">
-        <header className="flex items-center justify-between bg-surface-light dark:bg-surface-dark border-b border-[#e5e7eb] dark:border-[#2d3748] px-6 py-3 flex-shrink-0 z-10">
-          <div className="flex items-center gap-4 lg:hidden">
-            <button className="text-[#637588] dark:text-[#9ca3af]">
-              <span className="material-symbols-outlined">menu</span>
+        <header className="flex items-center justify-between bg-surface-light dark:bg-surface-dark border-b border-[#e5e7eb] dark:border-[#2d3748] px-4 md:px-6 py-3 flex-shrink-0 z-10 h-[64px]">
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMenuOpen(true);
+              }}
+              className="text-[#637588] dark:text-[#9ca3af] p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
+            >
+              <span className="material-symbols-outlined text-[28px]">menu</span>
             </button>
-            <h1 className="text-lg font-bold text-[#111418] dark:text-white">Painel</h1>
+            <h1 className="text-xl font-bold text-navy dark:text-white">Início</h1>
           </div>
           <div className="hidden lg:flex items-center gap-4 w-full max-w-sm">
             <div className="flex w-full items-center rounded-lg h-10 border border-[#e5e7eb] dark:border-[#2d3748] overflow-hidden bg-surface-light dark:bg-surface-dark transition-all">

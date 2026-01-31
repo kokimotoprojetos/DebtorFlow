@@ -15,6 +15,7 @@ interface DebtorsProps {
 }
 
 const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode, debtors, onAddDebtor, onAddDebt, onLogout, userEmail }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [filter, setFilter] = useState<string>('Todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [showDebtorModal, setShowDebtorModal] = useState(false);
@@ -84,11 +85,23 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark">
-      <AdminSidebar current="debtors" onNavigate={navigate} onLogout={onLogout} userEmail={userEmail} />
+      <AdminSidebar current="debtors" onNavigate={navigate} onLogout={onLogout} userEmail={userEmail} isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <main className="flex flex-1 flex-col h-full overflow-hidden relative">
-        <header className="flex items-center justify-between bg-white dark:bg-surface-dark border-b border-[#e5e7eb] dark:border-gray-800 px-10 py-3 sticky top-0 z-30 h-[64px]">
-          <h2 className="text-lg font-bold dark:text-white">Gerenciamento de Devedores</h2>
+        <header className="flex items-center justify-between bg-white dark:bg-surface-dark border-b border-[#e5e7eb] dark:border-gray-800 px-4 md:px-10 py-3 sticky top-0 z-30 h-[64px]">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMenuOpen(true);
+              }}
+              className="lg:hidden text-[#637588] dark:text-[#9ca3af] p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
+            >
+              <span className="material-symbols-outlined text-[28px]">menu</span>
+            </button>
+            <h2 className="text-xl font-bold dark:text-white hidden sm:block">Dívidas Ativas</h2>
+            <h2 className="text-xl font-bold dark:text-white sm:hidden">Dívidas</h2>
+          </div>
           <div className="flex items-center gap-4">
             <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
               <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
