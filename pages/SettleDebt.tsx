@@ -9,9 +9,11 @@ interface SettleDebtProps {
   debtors: Debtor[];
   selectedDebtorId: string | null;
   onPaymentConfirm?: (debtorId: string, amount: number, description: string) => void;
+  onLogout?: () => void;
+  userEmail?: string;
 }
 
-const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDarkMode, debtors, selectedDebtorId, onPaymentConfirm }) => {
+const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDarkMode, debtors, selectedDebtorId, onPaymentConfirm, onLogout, userEmail }) => {
   const [method, setMethod] = useState('pix');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -49,13 +51,19 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
           </div>
           <h2 className="text-lg font-bold tracking-tight">DebtorFlow Pro</h2>
         </div>
-        <nav className="hidden md:flex flex-1 justify-end gap-8 items-center">
-            <button onClick={() => navigate('dashboard')} className="text-sm font-medium hover:text-primary transition-colors">Dashboard</button>
-            <button onClick={() => navigate('debtors')} className="text-sm font-medium hover:text-primary transition-colors">Devedores</button>
-            <button onClick={() => navigate('reports')} className="text-sm font-medium hover:text-primary transition-colors">Relatórios</button>
-            <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
-                <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+        <nav className="hidden md:flex flex-1 justify-end gap-6 items-center">
+          <button onClick={() => navigate('dashboard')} className="text-sm font-medium hover:text-primary transition-colors">Dashboard</button>
+          <button onClick={() => navigate('debtors')} className="text-sm font-medium hover:text-primary transition-colors">Devedores</button>
+          <button onClick={() => navigate('reports')} className="text-sm font-medium hover:text-primary transition-colors">Relatórios</button>
+          <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
+            <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+          </button>
+          {onLogout && (
+            <button onClick={onLogout} className="flex items-center gap-1 text-red-500 hover:text-red-600 transition-colors ml-4">
+              <span className="material-symbols-outlined text-sm">logout</span>
+              <span className="text-xs font-bold">Sair</span>
             </button>
+          )}
         </nav>
       </header>
 
@@ -63,7 +71,7 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
         {showSuccess ? (
           <div className="w-full max-w-xl text-center py-20 animate-fade-in bg-white dark:bg-surface-dark rounded-3xl p-10 shadow-xl border border-gray-100 dark:border-gray-800">
             <div className="inline-flex size-20 items-center justify-center bg-emerald-100 dark:bg-emerald-900/30 text-emerald-accent rounded-full mb-6">
-               <span className="material-symbols-outlined text-5xl">check_circle</span>
+              <span className="material-symbols-outlined text-5xl">check_circle</span>
             </div>
             <h2 className="text-3xl font-black mb-2">Conta Acertada!</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-8">
@@ -85,14 +93,14 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
               <div className="lg:col-span-3 flex flex-col gap-8">
                 <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
                   <label className="text-xs font-black text-primary uppercase tracking-widest mb-4 block">1. Escolha o Devedor</label>
-                  <select 
+                  <select
                     value={localSelectedId}
                     onChange={(e) => setLocalSelectedId(e.target.value)}
                     className="w-full h-12 rounded-xl border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white font-bold"
                   >
                     <option value="">Selecione um devedor da lista...</option>
                     {debtors.filter(d => d.debts.length > 0).map(d => (
-                      <option key={d.id} value={d.id}>{d.name} - (R$ {d.debts.reduce((a,c) => a+c.amount,0).toLocaleString()})</option>
+                      <option key={d.id} value={d.id}>{d.name} - (R$ {d.debts.reduce((a, c) => a + c.amount, 0).toLocaleString()})</option>
                     ))}
                     {debtors.filter(d => d.debts.length === 0).map(d => (
                       <option key={d.id} value={d.id} disabled>{d.name} (Sem dívidas ativas)</option>
@@ -109,12 +117,11 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
                       { id: 'cartao', icon: 'credit_card', label: 'Cartão', desc: 'Débito ou Crédito' },
                       { id: 'transferencia', icon: 'account_balance', label: 'TED / DOC', desc: 'Transferência bancária' },
                     ].map((m) => (
-                      <button 
+                      <button
                         key={m.id}
                         onClick={() => setMethod(m.id)}
-                        className={`flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-all ${
-                          method === m.id ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-gray-800 hover:border-primary/30'
-                        }`}
+                        className={`flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-all ${method === m.id ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-gray-800 hover:border-primary/30'
+                          }`}
                       >
                         <span className={`material-symbols-outlined ${method === m.id ? 'text-primary' : 'text-gray-400'}`}>{m.icon}</span>
                         <div>
@@ -133,7 +140,7 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
                     <p className="text-xs font-bold uppercase tracking-widest opacity-80 mb-2">Saldo Devedor Atual</p>
                     <h2 className="text-4xl font-black">R$ {totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h2>
                   </div>
-                  
+
                   <div className="p-8 flex flex-col gap-6">
                     <div className="flex flex-col gap-3">
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Detalhamento por Vencimento</p>
@@ -161,7 +168,7 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
                       <span className="text-2xl font-black text-primary">R$ {totalAmount.toLocaleString()}</span>
                     </div>
 
-                    <button 
+                    <button
                       disabled={!currentDebtor || totalAmount <= 0 || isProcessing}
                       onClick={handlePayment}
                       className="w-full h-14 bg-primary hover:bg-primary-dark disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold rounded-2xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"

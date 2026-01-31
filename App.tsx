@@ -138,6 +138,7 @@ function App() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    navigate('landing');
   };
 
   const navigate = (view: 'landing' | 'dashboard' | 'debtors' | 'settle' | 'reports', debtorId?: string) => {
@@ -281,17 +282,25 @@ function App() {
   const renderView = () => {
     if (isLoading) return null; // Handled by loading screen in return
 
+    const commonProps = {
+      navigate,
+      toggleDarkMode,
+      isDarkMode,
+      onLogout: handleLogout,
+      userEmail: session?.user?.email
+    };
+
     switch (currentView) {
       case 'landing':
         return <LandingPage onStart={() => navigate('dashboard')} />;
       case 'dashboard':
-        return <Dashboard navigate={navigate} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} debtors={debtors} onLogout={handleLogout} />;
+        return <Dashboard {...commonProps} debtors={debtors} history={history} />;
       case 'debtors':
-        return <Debtors navigate={navigate} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} debtors={debtors} onAddDebtor={addDebtor} onAddDebt={addDebtToDebtor} />;
+        return <Debtors {...commonProps} debtors={debtors} onAddDebtor={addDebtor} onAddDebt={addDebtToDebtor} />;
       case 'settle':
-        return <SettleDebt navigate={navigate} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} debtors={debtors} selectedDebtorId={selectedDebtorId} onPaymentConfirm={registerPayment} />;
+        return <SettleDebt {...commonProps} debtors={debtors} selectedDebtorId={selectedDebtorId} onPaymentConfirm={registerPayment} />;
       case 'reports':
-        return <Reports navigate={navigate} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} history={history} />;
+        return <Reports {...commonProps} history={history} />;
       default:
         return <LandingPage onStart={() => navigate('dashboard')} />;
     }

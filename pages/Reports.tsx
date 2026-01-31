@@ -8,9 +8,11 @@ interface ReportsProps {
   toggleDarkMode: () => void;
   isDarkMode: boolean;
   history: HistoryEntry[];
+  onLogout?: () => void;
+  userEmail?: string;
 }
 
-const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode, history }) => {
+const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode, history, onLogout, userEmail }) => {
   const [dateStart, setDateStart] = useState('');
   const [dateEnd, setDateEnd] = useState('');
   const [typeFilter, setTypeFilter] = useState<'Todos' | 'Divida' | 'Pagamento'>('Todos');
@@ -38,24 +40,34 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark">
-      <AdminSidebar current="reports" onNavigate={navigate} />
+      <AdminSidebar current="reports" onNavigate={navigate} onLogout={onLogout} userEmail={userEmail} />
 
       <main className="flex flex-1 flex-col h-full overflow-hidden relative">
         <header className="flex items-center justify-between bg-white dark:bg-surface-dark border-b border-[#e5e7eb] dark:border-gray-800 px-10 py-3 sticky top-0 z-30 h-[64px]">
           <h2 className="text-lg font-bold dark:text-white">Histórico e Relatórios</h2>
           <div className="flex items-center gap-4">
-             <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
-                <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+            <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
+              <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+            </button>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
+                title="Sair da Conta"
+              >
+                <span className="material-symbols-outlined text-[20px]">logout</span>
+                <span className="text-xs font-bold hidden sm:inline">Sair</span>
               </button>
-              <button className="bg-emerald-accent text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
-                <span className="material-symbols-outlined text-[18px]">download</span> Exportar CSV
-              </button>
+            )}
+            <button className="bg-emerald-accent text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px]">download</span> Exportar CSV
+            </button>
           </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-10">
           <div className="max-w-6xl mx-auto flex flex-col gap-8">
-            
+
             {/* Cards de Resumo do Período */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white dark:bg-surface-dark p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
@@ -73,26 +85,26 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
               <div className="flex flex-wrap gap-6 items-end">
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase">Data Inicial</label>
-                  <input 
-                    type="date" 
-                    value={dateStart} 
+                  <input
+                    type="date"
+                    value={dateStart}
                     onChange={e => setDateStart(e.target.value)}
-                    className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm" 
+                    className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase">Data Final</label>
-                  <input 
-                    type="date" 
-                    value={dateEnd} 
+                  <input
+                    type="date"
+                    value={dateEnd}
                     onChange={e => setDateEnd(e.target.value)}
-                    className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm" 
+                    className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase">Tipo</label>
-                  <select 
-                    value={typeFilter} 
+                  <select
+                    value={typeFilter}
                     onChange={e => setTypeFilter(e.target.value as any)}
                     className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm min-w-[140px]"
                   >
@@ -103,8 +115,8 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold text-gray-400 uppercase">Categoria</label>
-                  <select 
-                    value={categoryFilter} 
+                  <select
+                    value={categoryFilter}
                     onChange={e => setCategoryFilter(e.target.value)}
                     className="h-10 rounded-lg border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm min-w-[140px]"
                   >
@@ -112,7 +124,7 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                     {Object.values(DebtCategory).map(cat => <option key={cat} value={cat}>{cat}</option>)}
                   </select>
                 </div>
-                <button 
+                <button
                   onClick={() => { setDateStart(''); setDateEnd(''); setTypeFilter('Todos'); setCategoryFilter('Todas'); }}
                   className="h-10 px-4 text-xs font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors"
                 >

@@ -10,9 +10,11 @@ interface DebtorsProps {
   debtors: Debtor[];
   onAddDebtor: (debtor: Debtor) => void;
   onAddDebt: (debtorId: string, debt: DebtItem) => void;
+  onLogout?: () => void;
+  userEmail?: string;
 }
 
-const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode, debtors, onAddDebtor, onAddDebt }) => {
+const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode, debtors, onAddDebtor, onAddDebt, onLogout, userEmail }) => {
   const [filter, setFilter] = useState<string>('Todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [showDebtorModal, setShowDebtorModal] = useState(false);
@@ -37,7 +39,7 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
     if (!newName || !newAmount || !newDueDate) return;
     const newId = Math.random().toString(36).substr(2, 9);
     const today = new Date().toISOString().split('T')[0];
-    
+
     const debtor: Debtor = {
       id: newId,
       name: newName,
@@ -82,43 +84,53 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark">
-      <AdminSidebar current="debtors" onNavigate={navigate} />
+      <AdminSidebar current="debtors" onNavigate={navigate} onLogout={onLogout} userEmail={userEmail} />
 
       <main className="flex flex-1 flex-col h-full overflow-hidden relative">
         <header className="flex items-center justify-between bg-white dark:bg-surface-dark border-b border-[#e5e7eb] dark:border-gray-800 px-10 py-3 sticky top-0 z-30 h-[64px]">
           <h2 className="text-lg font-bold dark:text-white">Gerenciamento de Devedores</h2>
           <div className="flex items-center gap-4">
-             <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
-                <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+            <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
+              <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+            </button>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
+                title="Sair da Conta"
+              >
+                <span className="material-symbols-outlined text-[20px]">logout</span>
+                <span className="text-xs font-bold hidden sm:inline">Sair</span>
               </button>
-              <button onClick={() => setShowDebtorModal(true)} className="bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm">+ Novo Devedor</button>
+            )}
+            <button onClick={() => setShowDebtorModal(true)} className="bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm">+ Novo Devedor</button>
           </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-10">
           <div className="max-w-6xl mx-auto flex flex-col gap-8">
             <div className="flex flex-col lg:flex-row gap-4 justify-between bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-               <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400">search</span>
-                  <input 
-                    type="text" 
-                    placeholder="Buscar por nome..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 h-11 border border-gray-200 dark:border-gray-700 bg-transparent rounded-lg text-sm dark:text-white"
-                  />
-                </div>
-                <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                  {['Todos', 'Ativo', 'Atrasado', 'Pago'].map((t) => (
-                    <button 
-                      key={t}
-                      onClick={() => setFilter(t)}
-                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filter === t ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400">search</span>
+                <input
+                  type="text"
+                  placeholder="Buscar por nome..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 h-11 border border-gray-200 dark:border-gray-700 bg-transparent rounded-lg text-sm dark:text-white"
+                />
+              </div>
+              <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                {['Todos', 'Ativo', 'Atrasado', 'Pago'].map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setFilter(t)}
+                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filter === t ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
@@ -153,9 +165,9 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                           <span className="font-mono font-bold text-sm dark:text-white">R$ {total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                         </td>
                         <td className="py-4 px-3">
-                           <span className={`text-xs font-bold ${isOverdue ? 'text-red-500' : 'text-gray-500'}`}>
-                             {nextDue}
-                           </span>
+                          <span className={`text-xs font-bold ${isOverdue ? 'text-red-500' : 'text-gray-500'}`}>
+                            {nextDue}
+                          </span>
                         </td>
                         <td className="py-4 px-3">
                           <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${d.status === 'Atrasado' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
@@ -163,14 +175,14 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                           </span>
                         </td>
                         <td className="py-4 px-6 text-right">
-                          <button 
+                          <button
                             onClick={() => { setSelectedDebtorId(d.id); setShowDebtModal(true); }}
                             className="text-xs font-bold text-primary hover:underline mr-4"
                           >
                             + Add Dívida
                           </button>
-                          <button 
-                            onClick={() => navigate('settle', d.id)} 
+                          <button
+                            onClick={() => navigate('settle', d.id)}
                             className="text-xs font-bold text-gray-400 hover:text-navy dark:hover:text-white bg-gray-50 dark:bg-gray-800 px-3 py-1 rounded-lg"
                           >
                             Acertar Contas
@@ -213,11 +225,11 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold text-primary uppercase">Data Prevista de Pagamento</label>
-                <input 
-                  type="date" 
-                  value={newDueDate} 
-                  onChange={e => setNewDueDate(e.target.value)} 
-                  className={`h-11 rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm ${newDueDate && newDueDate < new Date().toISOString().split('T')[0] ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : ''}`} 
+                <input
+                  type="date"
+                  value={newDueDate}
+                  onChange={e => setNewDueDate(e.target.value)}
+                  className={`h-11 rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm ${newDueDate && newDueDate < new Date().toISOString().split('T')[0] ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : ''}`}
                 />
               </div>
               <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} className="rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm" placeholder="Observações adicionais..." rows={2} />
@@ -245,11 +257,11 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
               <input type="number" value={newAmount} onChange={e => setNewAmount(e.target.value)} className="h-11 rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm" placeholder="Valor (R$)" />
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold text-primary uppercase">Novo Vencimento</label>
-                <input 
-                  type="date" 
-                  value={newDueDate} 
-                  onChange={e => setNewDueDate(e.target.value)} 
-                  className="h-11 rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm" 
+                <input
+                  type="date"
+                  value={newDueDate}
+                  onChange={e => setNewDueDate(e.target.value)}
+                  className="h-11 rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm"
                 />
               </div>
               <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} className="rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm" placeholder="O que é esta dívida?" rows={3} />
