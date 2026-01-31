@@ -5,16 +5,43 @@ import Dashboard from './pages/Dashboard';
 import Debtors from './pages/Debtors';
 import SettleDebt from './pages/SettleDebt';
 import Reports from './pages/Reports';
+import Auth from './pages/Auth';
 import { Debtor, HistoryEntry, DebtItem, DebtCategory, DebtorStatus } from './types';
 import { supabase } from './supabase';
+import { Session } from '@supabase/supabase-js';
 
 function App() {
+  const [session, setSession] = useState<Session | null>(null);
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'debtors' | 'settle' | 'reports'>('landing');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [debtors, setDebtors] = useState<Debtor[]>([]);
   const [selectedDebtorId, setSelectedDebtorId] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) fetchData();
+      else setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        fetchData();
+        if (currentView === 'landing') setCurrentView('dashboard');
+      } else {
+        setDebtors([]);
+        setHistory([]);
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -72,13 +99,9 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   // Efeito para verificar dívidas atrasadas
   useEffect(() => {
-    if (debtors.length === 0) return;
+    if (!session || debtors.length === 0) return;
 
     const today = new Date().toISOString().split('T')[0];
     const updateOverdue = async () => {
@@ -99,7 +122,7 @@ function App() {
     };
 
     updateOverdue();
-  }, [debtors]);
+  }, [debtors, session]);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -113,6 +136,10 @@ function App() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
   const navigate = (view: 'landing' | 'dashboard' | 'debtors' | 'settle' | 'reports', debtorId?: string) => {
     setCurrentView(view);
     if (debtorId) {
@@ -124,10 +151,12 @@ function App() {
   };
 
   const addDebtor = async (newDebtor: Debtor) => {
+    if (!session) return;
     try {
       const { data: debtorData, error: debtorError } = await supabase
         .from('debtors')
         .insert([{
+          user_id: session.user.id,
           name: newDebtor.name,
           email: newDebtor.email,
           phone: newDebtor.phone,
@@ -143,6 +172,7 @@ function App() {
       const { error: debtError } = await supabase
         .from('debts')
         .insert([{
+          user_id: session.user.id,
           debtor_id: debtorData.id,
           amount: initialDebt.amount,
           description: initialDebt.description,
@@ -156,6 +186,7 @@ function App() {
       const { error: historyError } = await supabase
         .from('history_entries')
         .insert([{
+          user_id: session.user.id,
           debtor_id: debtorData.id,
           type: 'Divida',
           category: initialDebt.category,
@@ -173,12 +204,14 @@ function App() {
   };
 
   const addDebtToDebtor = async (debtorId: string, newDebt: DebtItem) => {
+    if (!session) return;
     try {
       const today = new Date().toISOString().split('T')[0];
 
       const { error: debtError } = await supabase
         .from('debts')
         .insert([{
+          user_id: session.user.id,
           debtor_id: debtorId,
           amount: newDebt.amount,
           description: newDebt.description,
@@ -196,6 +229,7 @@ function App() {
       const { error: historyError } = await supabase
         .from('history_entries')
         .insert([{
+          user_id: session.user.id,
           debtor_id: debtorId,
           type: 'Divida',
           category: newDebt.category,
@@ -213,6 +247,7 @@ function App() {
   };
 
   const registerPayment = async (debtorId: string, amount: number, description: string) => {
+    if (!session) return;
     try {
       const { error: settleError } = await supabase
         .from('debts')
@@ -226,6 +261,7 @@ function App() {
       const { error: historyError } = await supabase
         .from('history_entries')
         .insert([{
+          user_id: session.user.id,
           debtor_id: debtorId,
           type: 'Pagamento',
           category: DebtCategory.OUTROS,
@@ -243,11 +279,13 @@ function App() {
   };
 
   const renderView = () => {
+    if (isLoading) return null; // Handled by loading screen in return
+
     switch (currentView) {
       case 'landing':
         return <LandingPage onStart={() => navigate('dashboard')} />;
       case 'dashboard':
-        return <Dashboard navigate={navigate} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} debtors={debtors} />;
+        return <Dashboard navigate={navigate} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} debtors={debtors} onLogout={handleLogout} />;
       case 'debtors':
         return <Debtors navigate={navigate} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} debtors={debtors} onAddDebtor={addDebtor} onAddDebt={addDebtToDebtor} />;
       case 'settle':
@@ -265,9 +303,11 @@ function App() {
         <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-background-dark z-50">
           <div className="flex flex-col items-center">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-slate-600 dark:text-slate-400 font-medium">Carregando dados...</p>
+            <p className="text-slate-600 dark:text-slate-400 font-medium">Carregando...</p>
           </div>
         </div>
+      ) : !session ? (
+        <Auth onAuthSuccess={() => navigate('dashboard')} />
       ) : (
         renderView()
       )}
