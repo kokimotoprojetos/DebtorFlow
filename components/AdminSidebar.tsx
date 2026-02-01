@@ -32,14 +32,14 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ current, onNavigate, onLogo
       `}>
         <div className="flex flex-col gap-4 p-4 h-full w-full">
           <div className="flex items-center justify-between px-2 py-2">
-            <div className="flex flex-col cursor-pointer" onClick={() => handleNavigate('landing')}>
+            <div className="flex flex-col cursor-pointer notranslate" onClick={() => handleNavigate('landing')}>
               <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-8 h-8 rounded bg-primary/10 text-primary">
+                <div className="flex items-center justify-center w-8 h-8 rounded bg-primary/10 text-primary flex-shrink-0">
                   <span className="material-symbols-outlined">account_balance_wallet</span>
                 </div>
-                <h1 className="text-lg font-bold leading-normal text-[#111418] dark:text-white">DebtorFlow</h1>
+                <h1 className="text-lg font-bold leading-none text-[#111418] dark:text-white truncate">DebtorFlow</h1>
               </div>
-              <p className="text-[#637588] dark:text-[#9ca3af] text-xs font-normal leading-normal mt-1 pl-10">Portal Administrativo</p>
+              <p className="text-[#637588] dark:text-[#9ca3af] text-[10px] font-normal leading-normal mt-1 pl-10">Portal Administrativo</p>
             </div>
             {onClose && (
               <button onClick={onClose} className="lg:hidden p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-[#637588] dark:text-[#9ca3af]">
@@ -53,32 +53,32 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ current, onNavigate, onLogo
               onClick={() => handleNavigate('dashboard')}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'dashboard' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
             >
-              <span className="material-symbols-outlined">dashboard</span>
-              <p className="text-sm font-medium leading-normal">Painel Inicial</p>
+              <span className="material-symbols-outlined flex-shrink-0">dashboard</span>
+              <p className="text-sm font-medium leading-normal text-left truncate">Painel Inicial</p>
             </button>
 
             <button
               onClick={() => handleNavigate('debtors')}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'debtors' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
             >
-              <span className="material-symbols-outlined">group</span>
-              <p className="text-sm font-medium leading-normal">Devedores</p>
+              <span className="material-symbols-outlined flex-shrink-0">group</span>
+              <p className="text-sm font-medium leading-normal text-left truncate">Devedores</p>
             </button>
 
             <button
               onClick={() => handleNavigate('settle')}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'settle' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
             >
-              <span className="material-symbols-outlined">payments</span>
-              <p className="text-sm font-medium leading-normal">Acerto de Contas</p>
+              <span className="material-symbols-outlined flex-shrink-0">payments</span>
+              <p className="text-sm font-medium leading-normal text-left truncate">Acerto de Contas</p>
             </button>
 
             <button
               onClick={() => handleNavigate('reports')}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'reports' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
             >
-              <span className="material-symbols-outlined">description</span>
-              <p className="text-sm font-medium leading-normal">Relatórios / Histórico</p>
+              <span className="material-symbols-outlined flex-shrink-0">description</span>
+              <p className="text-sm font-medium leading-normal text-left truncate">Relatórios / Histórico</p>
             </button>
 
             <div className="my-2 border-t border-[#e5e7eb] dark:border-[#2d3748]"></div>
