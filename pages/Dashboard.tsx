@@ -116,7 +116,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
               <h2 className="text-2xl lg:text-3xl font-black text-navy dark:text-white tracking-tight">
                 Olá{userEmail ? `, ${userEmail.split('@')[0]}` : ''} 👋
               </h2>
-              <p className="text-[#637588] dark:text-[#9ca3af] mt-1 font-medium">Aqui estão os dados reais da sua carteira no Supabase.</p>
+              <p className="text-[#637588] dark:text-[#9ca3af] mt-1 font-medium">Aqui estão as métricas e estatísticas atualizadas da sua gestão de cobranças.</p>
             </div>
 
             <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4">
