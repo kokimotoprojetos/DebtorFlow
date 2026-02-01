@@ -18,6 +18,7 @@ function App() {
   const [selectedDebtorId, setSelectedDebtorId] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     // Check active session
@@ -43,8 +44,9 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchData = async () => {
-    setIsLoading(true);
+  const fetchData = async (showLoader = false) => {
+    if (showLoader) setIsLoading(true);
+    else setIsRefreshing(true);
     try {
       // Fetch debtors with their debts
       const { data: debtorsData, error: debtorsError } = await supabase
@@ -96,6 +98,7 @@ function App() {
       console.error('Error fetching data:', error);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -117,7 +120,7 @@ function App() {
         for (const update of updates) {
           await supabase.from('debtors').update({ status: update.status }).eq('id', update.id);
         }
-        fetchData();
+        fetchData(); // Silently refresh in background
       }
     };
 
