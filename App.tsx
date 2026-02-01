@@ -29,16 +29,23 @@ function App() {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) {
-        fetchData();
-        if (currentView === 'landing') setCurrentView('dashboard');
-      } else {
-        setDebtors([]);
-        setHistory([]);
-        setIsLoading(false);
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(prevSession => {
+        // Only update if the session ID changed to avoid unnecessary re-renders and data fetching
+        if (prevSession?.user?.id === newSession?.user?.id && !!prevSession === !!newSession) {
+          return prevSession;
+        }
+
+        if (newSession) {
+          fetchData();
+          if (currentView === 'landing') setCurrentView('dashboard');
+        } else {
+          setDebtors([]);
+          setHistory([]);
+          setIsLoading(false);
+        }
+        return newSession;
+      });
     });
 
     return () => subscription.unsubscribe();
