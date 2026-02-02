@@ -64,17 +64,17 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
               }}
               className="lg:hidden text-[#637588] dark:text-[#9ca3af] p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
             >
-              <span className="material-symbols-outlined text-[28px]">menu</span>
+              <span className="material-symbols-outlined text-[28px]" translate="no">menu</span>
             </button>
             <h2 className="text-xl font-bold tracking-tight">Acerto</h2>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-2">
-              <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+              <span className="material-symbols-outlined" translate="no">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
             </button>
             {onLogout && (
               <button onClick={onLogout} className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30">
-                <span className="material-symbols-outlined text-[20px]">logout</span>
+                <span className="material-symbols-outlined text-[20px] flex-shrink-0" translate="no">logout</span>
                 <span className="text-xs font-bold hidden sm:inline">Sair</span>
               </button>
             )}
@@ -85,7 +85,7 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
           {showSuccess ? (
             <div className="w-full max-w-xl text-center py-20 animate-fade-in bg-white dark:bg-surface-dark rounded-3xl p-10 shadow-xl border border-gray-100 dark:border-gray-800 h-fit self-center">
               <div className="inline-flex size-20 items-center justify-center bg-emerald-100 dark:bg-emerald-900/30 text-emerald-accent rounded-full mb-6">
-                <span className="material-symbols-outlined text-5xl">check_circle</span>
+                <span className="material-symbols-outlined text-5xl flex-shrink-0" translate="no">check_circle</span>
               </div>
               <h2 className="text-3xl font-black mb-2">Conta Acertada!</h2>
               <p className="text-gray-500 dark:text-gray-400 mb-8">
@@ -133,7 +133,7 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
                           onClick={() => setMethod(m.id)}
                           className={`flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all ${method === m.id ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-gray-800 hover:border-primary/30'}`}
                         >
-                          <span className={`material-symbols-outlined ${method === m.id ? 'text-primary' : 'text-gray-400'}`}>{m.icon}</span>
+                          <span className={`material-symbols-outlined flex-shrink-0 ${method === m.id ? 'text-primary' : 'text-gray-400'}`} translate="no">{m.icon}</span>
                           <p className="font-bold text-sm dark:text-white">{m.label}</p>
                         </button>
                       ))}
@@ -176,9 +176,9 @@ const SettleDebt: React.FC<SettleDebtProps> = ({ navigate, toggleDarkMode, isDar
                         className="w-full h-14 bg-primary hover:bg-primary-dark disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold rounded-2xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
                       >
                         {isProcessing ? (
-                          <span className="animate-spin material-symbols-outlined">sync</span>
+                          <span className="animate-spin material-symbols-outlined flex-shrink-0" translate="no">sync</span>
                         ) : (
-                          <>Finalizar Acerto <span className="material-symbols-outlined">done_all</span></>
+                          <>Finalizar Acerto <span className="material-symbols-outlined flex-shrink-0" translate="no">done_all</span></>
                         )}
                       </button>
                     </div>

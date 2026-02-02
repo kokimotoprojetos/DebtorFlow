@@ -97,14 +97,14 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
               }}
               className="lg:hidden text-[#637588] dark:text-[#9ca3af] p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
             >
-              <span className="material-symbols-outlined text-[28px]">menu</span>
+              <span className="material-symbols-outlined text-[28px]" translate="no">menu</span>
             </button>
             <h2 className="text-xl font-bold dark:text-white hidden sm:block">Dívidas Ativas</h2>
             <h2 className="text-xl font-bold dark:text-white sm:hidden">Dívidas</h2>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-1 md:p-2">
-              <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+              <span className="material-symbols-outlined" translate="no">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
             </button>
             {onLogout && (
               <button
@@ -112,7 +112,7 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                 className="flex items-center gap-2 px-2 md:px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
                 title="Sair da Conta"
               >
-                <span className="material-symbols-outlined text-[20px]">logout</span>
+                <span className="material-symbols-outlined text-[20px] flex-shrink-0" translate="no">logout</span>
                 <span className="text-[10px] md:text-sm font-bold hidden sm:inline">Sair</span>
               </button>
             )}
@@ -124,7 +124,7 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
           <div className="max-w-6xl mx-auto flex flex-col gap-8">
             <div className="flex flex-col lg:flex-row gap-4 justify-between bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
               <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400">search</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 flex-shrink-0" translate="no">search</span>
                 <input
                   type="text"
                   placeholder="Buscar por nome..."

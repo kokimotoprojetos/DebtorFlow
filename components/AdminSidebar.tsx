@@ -32,10 +32,10 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ current, onNavigate, onLogo
       `}>
         <div className="flex flex-col gap-4 p-4 h-full w-full">
           <div className="flex items-center justify-between px-2 py-2">
-            <div className="flex flex-col cursor-pointer notranslate" onClick={() => handleNavigate('landing')}>
+            <div className="flex flex-col cursor-pointer" onClick={() => handleNavigate('landing')} translate="no">
               <div className="flex items-center gap-2">
                 <div className="flex items-center justify-center w-8 h-8 rounded bg-primary/10 text-primary flex-shrink-0">
-                  <span className="material-symbols-outlined">account_balance_wallet</span>
+                  <span className="material-symbols-outlined" translate="no">account_balance_wallet</span>
                 </div>
                 <h1 className="text-lg font-bold leading-none text-[#111418] dark:text-white truncate">DebtorFlow</h1>
               </div>
@@ -53,32 +53,32 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ current, onNavigate, onLogo
               onClick={() => handleNavigate('dashboard')}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'dashboard' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
             >
-              <span className="material-symbols-outlined flex-shrink-0">dashboard</span>
-              <p className="text-sm font-medium leading-normal text-left truncate">Painel Inicial</p>
+              <span className="material-symbols-outlined flex-shrink-0" translate="no">dashboard</span>
+              <p className="text-sm font-medium leading-normal text-left truncate whitespace-nowrap">Painel Inicial</p>
             </button>
 
             <button
               onClick={() => handleNavigate('debtors')}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'debtors' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
             >
-              <span className="material-symbols-outlined flex-shrink-0">group</span>
-              <p className="text-sm font-medium leading-normal text-left truncate">Devedores</p>
+              <span className="material-symbols-outlined flex-shrink-0" translate="no">group</span>
+              <p className="text-sm font-medium leading-normal text-left truncate whitespace-nowrap">Devedores</p>
             </button>
 
             <button
               onClick={() => handleNavigate('settle')}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'settle' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
             >
-              <span className="material-symbols-outlined flex-shrink-0">payments</span>
-              <p className="text-sm font-medium leading-normal text-left truncate">Acerto de Contas</p>
+              <span className="material-symbols-outlined flex-shrink-0" translate="no">payments</span>
+              <p className="text-sm font-medium leading-normal text-left truncate whitespace-nowrap">Acerto de Contas</p>
             </button>
 
             <button
               onClick={() => handleNavigate('reports')}
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'reports' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
             >
-              <span className="material-symbols-outlined flex-shrink-0">description</span>
-              <p className="text-sm font-medium leading-normal text-left truncate">Relatórios / Histórico</p>
+              <span className="material-symbols-outlined flex-shrink-0" translate="no">description</span>
+              <p className="text-sm font-medium leading-normal text-left truncate whitespace-nowrap">Relatórios / Histórico</p>
             </button>
 
             <div className="my-2 border-t border-[#e5e7eb] dark:border-[#2d3748]"></div>
@@ -94,9 +94,10 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ current, onNavigate, onLogo
               <button
                 onClick={onLogout}
                 className="flex items-center gap-3 px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                translate="no"
               >
-                <span className="material-symbols-outlined">logout</span>
-                <p className="text-sm font-bold leading-normal">Sair da Conta</p>
+                <span className="material-symbols-outlined flex-shrink-0">logout</span>
+                <p className="text-sm font-bold leading-normal truncate whitespace-nowrap">Sair da Conta</p>
               </button>
             )}
 

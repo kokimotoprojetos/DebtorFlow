@@ -1,1 +1,27 @@
-/* Main index.css - Styles are mostly handled via Tailwind CDN and inline styles in this project */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fix for Google Translate breaking layout by injecting <font> tags */
+font {
+    vertical-align: inherit !important;
+    display: inline !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+.material-symbols-outlined,
+[translate="no"] {
+    display: inline-block;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'liga';
+}
+
+/* Ensure icons don't translate ligatures */
+.material-symbols-outlined {
+    unicode-bidi: isolate;
+    font-family: 'Material Symbols Outlined' !important;
+}

@@ -53,14 +53,14 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
               }}
               className="lg:hidden text-[#637588] dark:text-[#9ca3af] p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
             >
-              <span className="material-symbols-outlined text-[28px]">menu</span>
+              <span className="material-symbols-outlined text-[28px]" translate="no">menu</span>
             </button>
             <h2 className="text-xl font-bold dark:text-white hidden sm:block">Relatórios Gerais</h2>
             <h2 className="text-xl font-bold dark:text-white sm:hidden">Relatórios</h2>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <button onClick={toggleDarkMode} className="text-[#637588] dark:text-gray-400 p-1 md:p-2">
-              <span className="material-symbols-outlined">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+              <span className="material-symbols-outlined" translate="no">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
             </button>
             {onLogout && (
               <button
@@ -68,7 +68,7 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                 className="flex items-center gap-2 px-2 md:px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-200 dark:border-red-900/30"
                 title="Sair da Conta"
               >
-                <span className="material-symbols-outlined text-[20px]">logout</span>
+                <span className="material-symbols-outlined text-[20px] flex-shrink-0" translate="no">logout</span>
                 <span className="text-[10px] md:text-sm font-bold hidden sm:inline">Sair</span>
               </button>
             )}
@@ -165,7 +165,7 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                       </td>
                       <td className="py-4 px-3">
                         <div className="flex items-center gap-2">
-                          <span className={`material-symbols-outlined text-[18px] ${entry.type === 'Divida' ? 'text-red-400' : 'text-emerald-400'}`}>
+                          <span className={`material-symbols-outlined text-[18px] ${entry.type === 'Divida' ? 'text-red-400' : 'text-emerald-400'}`} translate="no">
                             {entry.type === 'Divida' ? 'trending_down' : 'trending_up'}
                           </span>
                           <div className="flex flex-col">
@@ -186,7 +186,7 @@ const Reports: React.FC<ReportsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                   )) : (
                     <tr>
                       <td colSpan={5} className="py-20 text-center text-gray-400">
-                        <span className="material-symbols-outlined text-5xl mb-2">search_off</span>
+                        <span className="material-symbols-outlined text-5xl mb-2" translate="no">search_off</span>
                         <p>Nenhum registro encontrado.</p>
                       </td>
                     </tr>

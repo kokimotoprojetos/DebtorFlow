@@ -78,19 +78,19 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
               }}
               className="text-[#637588] dark:text-[#9ca3af] p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
             >
-              <span className="material-symbols-outlined text-[28px]">menu</span>
+              <span className="material-symbols-outlined text-[28px]" translate="no">menu</span>
             </button>
             <h1 className="text-xl font-bold text-navy dark:text-white truncate max-w-[120px]">Início</h1>
           </div>
           <div className="hidden lg:flex items-center gap-4 w-full max-w-sm">
             <div className="flex w-full items-center rounded-lg h-10 border border-[#e5e7eb] dark:border-[#2d3748] overflow-hidden bg-surface-light dark:bg-surface-dark transition-all">
-              <span className="material-symbols-outlined text-[20px] text-[#637588] px-3">search</span>
+              <span className="material-symbols-outlined text-[20px] text-[#637588] px-3 flex-shrink-0" translate="no">search</span>
               <input className="flex-1 bg-transparent border-none text-sm focus:outline-0 placeholder:text-[#637588] dark:text-white" placeholder="Buscar devedor..." />
             </div>
           </div>
           <div className="flex items-center justify-end gap-2 md:gap-3 font-display">
             <button onClick={toggleDarkMode} className="p-1.5 md:p-2 rounded-lg text-[#637588] dark:text-[#9ca3af] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              <span className="material-symbols-outlined text-[22px] md:text-[24px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+              <span className="material-symbols-outlined text-[22px] md:text-[24px]" translate="no">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
             </button>
 
             {onLogout && (
@@ -98,13 +98,13 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
                 onClick={onLogout}
                 className="flex items-center gap-2 px-2 md:px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-all border border-red-200 dark:border-red-900/30 shadow-sm active:scale-95"
               >
-                <span className="material-symbols-outlined text-[20px]">logout</span>
+                <span className="material-symbols-outlined text-[20px] flex-shrink-0" translate="no">logout</span>
                 <span className="text-[10px] md:text-sm font-bold hidden xs:inline">Sair</span>
               </button>
             )}
 
             <button onClick={() => navigate('debtors')} className="flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold transition-all text-[10px] md:text-sm shadow-lg shadow-primary/20 active:scale-95">
-              <span className="material-symbols-outlined text-[18px] md:text-[20px]">add</span>
+              <span className="material-symbols-outlined text-[18px] md:text-[20px] flex-shrink-0" translate="no">add</span>
               <span className="hidden xs:block">Novo</span>
             </button>
           </div>
@@ -130,7 +130,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
                   <div className="flex justify-between items-center">
                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest truncate">{kpi.label}</p>
                     <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg bg-slate-50 dark:bg-slate-900 flex items-center justify-center`}>
-                      <span className={`material-symbols-outlined text-[18px] md:text-[20px] ${kpi.iconColor || 'text-gray-400'}`}>{kpi.icon}</span>
+                      <span className={`material-symbols-outlined text-[18px] md:text-[20px] flex-shrink-0 ${kpi.iconColor || 'text-gray-400'}`} translate="no">{kpi.icon}</span>
                     </div>
                   </div>
                   <p className="text-xl md:text-2xl font-black text-navy dark:text-white tracking-tight">{kpi.val}</p>
@@ -169,7 +169,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
                     </ResponsiveContainer>
                   ) : (
                     <div className="h-full w-full flex flex-col items-center justify-center bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-                      <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">query_stats</span>
+                      <span className="material-symbols-outlined text-4xl text-slate-300 mb-2 flex-shrink-0" translate="no">query_stats</span>
                       <p className="text-sm font-bold text-slate-400">Sem dados para o gráfico</p>
                     </div>
                   )}
@@ -185,7 +185,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
                   {history.length > 0 ? history.slice(0, 10).map((act) => (
                     <div key={act.id} className="group flex items-center gap-4 p-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 rounded-xl transition-all">
                       <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 ${act.type === 'Pagamento' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'bg-red-50 text-red-600 dark:bg-red-900/20'}`}>
-                        <span className="material-symbols-outlined text-[20px]">{act.type === 'Pagamento' ? 'verified' : 'add_circle'}</span>
+                        <span className="material-symbols-outlined text-[20px] flex-shrink-0" translate="no">{act.type === 'Pagamento' ? 'verified' : 'add_circle'}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-black text-navy dark:text-white truncate tracking-tight">{act.debtorName}</p>
@@ -201,7 +201,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate, toggleDarkMode, isDarkM
                   )) : (
                     <div className="flex flex-col items-center justify-center py-16 text-slate-300 dark:text-slate-700">
                       <div className="w-16 h-16 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-4">
-                        <span className="material-symbols-outlined text-4xl">cloud_off</span>
+                        <span className="material-symbols-outlined text-4xl flex-shrink-0" translate="no">cloud_off</span>
                       </div>
                       <p className="text-xs font-black uppercase tracking-widest">Banco Vazio</p>
                     </div>
