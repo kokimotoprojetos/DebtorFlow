@@ -83,8 +83,11 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ current, onNavigate, onLogo
 
             <div className="my-2 border-t border-[#e5e7eb] dark:border-[#2d3748]"></div>
 
-            <button className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af] transition-colors">
-              <span className="material-symbols-outlined">settings</span>
+            <button
+              onClick={() => handleNavigate('settings')}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${current === 'settings' ? 'bg-primary/10 text-primary' : 'hover:bg-[#f3f4f6] dark:hover:bg-[#2d3748] text-[#637588] dark:text-[#9ca3af]'}`}
+            >
+              <span className="material-symbols-outlined" translate="no">settings</span>
               <p className="text-sm font-medium leading-normal">Configurações</p>
             </button>
           </nav>

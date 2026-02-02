@@ -29,6 +29,8 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
   const [newCategory, setNewCategory] = useState<DebtCategory>(DebtCategory.PRODUTO);
   const [newDesc, setNewDesc] = useState('');
   const [newDueDate, setNewDueDate] = useState('');
+  const [isInstallment, setIsInstallment] = useState(false);
+  const [installmentCount, setInstallmentCount] = useState('2');
 
   const filteredDebtors = debtors.filter(d => {
     const matchesFilter = filter === 'Todos' || d.status === filter;
@@ -40,21 +42,32 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
     if (!newName || !newAmount || !newDueDate) return;
     const newId = Math.random().toString(36).substr(2, 9);
     const today = new Date().toISOString().split('T')[0];
+    const amount = parseFloat(newAmount);
+    const count = isInstallment ? parseInt(installmentCount) || 1 : 1;
+    const partAmount = amount / count;
+
+    const debts: DebtItem[] = [];
+    for (let i = 0; i < count; i++) {
+      const dueDateObj = new Date(newDueDate + 'T12:00:00');
+      dueDateObj.setMonth(dueDateObj.getMonth() + i);
+
+      debts.push({
+        id: `d-${Date.now()}-${i}`,
+        category: newCategory,
+        description: isInstallment ? `${newDesc || 'Dívida'} (${i + 1}/${count})` : (newDesc || 'Dívida Inicial'),
+        amount: partAmount,
+        date: today,
+        dueDate: dueDateObj.toISOString().split('T')[0]
+      });
+    }
 
     const debtor: Debtor = {
       id: newId,
       name: newName,
       email: newEmail,
-      status: newDueDate < today ? DebtorStatus.ATRASADO : DebtorStatus.ATIVO,
+      status: debts.some(d => d.dueDate < today) ? DebtorStatus.ATRASADO : DebtorStatus.ATIVO,
       avatar: `https://ui-avatars.com/api/?name=${newName}&background=random`,
-      debts: [{
-        id: 'd-' + Date.now(),
-        category: newCategory,
-        description: newDesc || 'Dívida Inicial',
-        amount: parseFloat(newAmount),
-        date: today,
-        dueDate: newDueDate
-      }]
+      debts: debts
     };
     onAddDebtor(debtor);
     setShowDebtorModal(false);
@@ -64,15 +77,26 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
   const handleAddDebt = () => {
     if (!selectedDebtorId || !newAmount || !newDueDate) return;
     const today = new Date().toISOString().split('T')[0];
-    const debt: DebtItem = {
-      id: 'd-' + Date.now(),
-      category: newCategory,
-      description: newDesc || 'Nova Dívida',
-      amount: parseFloat(newAmount),
-      date: today,
-      dueDate: newDueDate
-    };
-    onAddDebt(selectedDebtorId, debt);
+    const amount = parseFloat(newAmount);
+    const count = isInstallment ? parseInt(installmentCount) || 1 : 1;
+    const partAmount = amount / count;
+
+    const debts: DebtItem[] = [];
+    for (let i = 0; i < count; i++) {
+      const dueDateObj = new Date(newDueDate + 'T12:00:00');
+      dueDateObj.setMonth(dueDateObj.getMonth() + i);
+
+      debts.push({
+        id: `d-${Date.now()}-${i}`,
+        category: newCategory,
+        description: isInstallment ? `${newDesc || 'Dívida'} (${i + 1}/${count})` : (newDesc || 'Nova Dívida'),
+        amount: partAmount,
+        date: today,
+        dueDate: dueDateObj.toISOString().split('T')[0]
+      });
+    }
+
+    onAddDebt(selectedDebtorId, debts);
     setShowDebtModal(false);
     resetForm();
   };
@@ -80,6 +104,7 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
   const resetForm = () => {
     setNewName(''); setNewEmail(''); setNewAmount(''); setNewDesc('');
     setNewCategory(DebtCategory.PRODUTO); setNewDueDate('');
+    setIsInstallment(false); setInstallmentCount('2');
     setSelectedDebtorId(null);
   };
 
@@ -307,6 +332,36 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                   className={`h-11 rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm ${newDueDate && newDueDate < new Date().toISOString().split('T')[0] ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : ''}`}
                 />
               </div>
+
+              <div className="flex flex-col gap-3 p-3 bg-gray-50 dark:bg-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isInstallment}
+                    onChange={e => setIsInstallment(e.target.checked)}
+                    className="rounded text-primary focus:ring-primary w-4 h-4"
+                  />
+                  <span className="text-sm font-bold dark:text-white">Parcelar dívida</span>
+                </label>
+
+                {isInstallment && (
+                  <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-2">
+                    <div className="flex flex-col gap-1 flex-1">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase">Nº de Parcelas</label>
+                      <input
+                        type="number"
+                        min="2"
+                        value={installmentCount}
+                        onChange={e => setInstallmentCount(e.target.value)}
+                        className="h-9 rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                      />
+                    </div>
+                    <div className="pt-4 text-xs text-gray-400 italic">
+                      Parcelas mensais.
+                    </div>
+                  </div>
+                )}
+              </div>
               <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} className="rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm" placeholder="Observações adicionais..." rows={2} />
             </div>
             <div className="p-6 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3">
@@ -338,6 +393,36 @@ const Debtors: React.FC<DebtorsProps> = ({ navigate, toggleDarkMode, isDarkMode,
                   onChange={e => setNewDueDate(e.target.value)}
                   className="h-11 rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm"
                 />
+              </div>
+
+              <div className="flex flex-col gap-3 p-3 bg-gray-50 dark:bg-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-700">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isInstallment}
+                    onChange={e => setIsInstallment(e.target.checked)}
+                    className="rounded text-primary focus:ring-primary w-4 h-4"
+                  />
+                  <span className="text-sm font-bold dark:text-white">Parcelar dívida</span>
+                </label>
+
+                {isInstallment && (
+                  <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-2">
+                    <div className="flex flex-col gap-1 flex-1">
+                      <label className="text-[10px] font-bold text-gray-400 uppercase">Nº de Parcelas</label>
+                      <input
+                        type="number"
+                        min="2"
+                        value={installmentCount}
+                        onChange={e => setInstallmentCount(e.target.value)}
+                        className="h-9 rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm"
+                      />
+                    </div>
+                    <div className="pt-4 text-xs text-gray-400 italic">
+                      Parcelas mensais.
+                    </div>
+                  </div>
+                )}
               </div>
               <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} className="rounded-lg border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white text-sm" placeholder="O que é esta dívida?" rows={3} />
             </div>

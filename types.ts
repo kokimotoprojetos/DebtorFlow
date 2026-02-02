@@ -54,3 +54,9 @@ export interface Activity {
   timestamp: string;
   amount?: number;
 }
+export interface UserSettings {
+  id?: string;
+  user_id?: string;
+  interest_rate: number;
+  installment_fee: number;
+}

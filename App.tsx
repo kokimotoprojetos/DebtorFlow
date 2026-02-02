@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Debtors from './pages/Debtors';
 import SettleDebt from './pages/SettleDebt';
 import Reports from './pages/Reports';
+import Settings from './pages/Settings';
 import Auth from './pages/Auth';
 import { Debtor, HistoryEntry, DebtItem, DebtCategory, DebtorStatus } from './types';
 import { supabase } from './supabase';
@@ -12,7 +13,7 @@ import { Session } from '@supabase/supabase-js';
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'debtors' | 'settle' | 'reports'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'debtors' | 'settle' | 'reports' | 'settings'>('landing');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [debtors, setDebtors] = useState<Debtor[]>([]);
   const [selectedDebtorId, setSelectedDebtorId] = useState<string | null>(null);
@@ -151,7 +152,7 @@ function App() {
     navigate('landing');
   };
 
-  const navigate = (view: 'landing' | 'dashboard' | 'debtors' | 'settle' | 'reports', debtorId?: string) => {
+  const navigate = (view: 'landing' | 'dashboard' | 'debtors' | 'settle' | 'reports' | 'settings', debtorId?: string) => {
     setCurrentView(view);
     if (debtorId) {
       setSelectedDebtorId(debtorId);
@@ -179,32 +180,31 @@ function App() {
 
       if (debtorError) throw debtorError;
 
-      const initialDebt = newDebtor.debts[0];
       const { error: debtError } = await supabase
         .from('debts')
-        .insert([{
+        .insert(newDebtor.debts.map(debt => ({
           user_id: session.user.id,
           debtor_id: debtorData.id,
-          amount: initialDebt.amount,
-          description: initialDebt.description,
-          category: initialDebt.category,
-          date: initialDebt.date,
-          due_date: initialDebt.dueDate
-        }]);
+          amount: debt.amount,
+          description: debt.description,
+          category: debt.category,
+          date: debt.date,
+          due_date: debt.dueDate
+        })));
 
       if (debtError) throw debtError;
 
       const { error: historyError } = await supabase
         .from('history_entries')
-        .insert([{
+        .insert(newDebtor.debts.map(debt => ({
           user_id: session.user.id,
           debtor_id: debtorData.id,
           type: 'Divida',
-          category: initialDebt.category,
-          amount: initialDebt.amount,
-          date: initialDebt.date,
-          description: `Cadastro Inicial: ${initialDebt.description}`
-        }]);
+          category: debt.category,
+          amount: debt.amount,
+          date: debt.date,
+          description: `Cadastro Inicial: ${debt.description}`
+        })));
 
       if (historyError) throw historyError;
 
@@ -214,40 +214,42 @@ function App() {
     }
   };
 
-  const addDebtToDebtor = async (debtorId: string, newDebt: DebtItem) => {
+  const addDebtToDebtor = async (debtorId: string, newDebts: DebtItem | DebtItem[]) => {
     if (!session) return;
+    const debtsArray = Array.isArray(newDebts) ? newDebts : [newDebts];
     try {
       const today = new Date().toISOString().split('T')[0];
 
       const { error: debtError } = await supabase
         .from('debts')
-        .insert([{
+        .insert(debtsArray.map(debt => ({
           user_id: session.user.id,
           debtor_id: debtorId,
-          amount: newDebt.amount,
-          description: newDebt.description,
-          category: newDebt.category,
-          date: newDebt.date,
-          due_date: newDebt.dueDate
-        }]);
+          amount: debt.amount,
+          description: debt.description,
+          category: debt.category,
+          date: debt.date,
+          due_date: debt.dueDate
+        })));
 
       if (debtError) throw debtError;
 
-      if (newDebt.dueDate < today) {
+      const hasOverdue = debtsArray.some(d => d.dueDate < today);
+      if (hasOverdue) {
         await supabase.from('debtors').update({ status: DebtorStatus.ATRASADO }).eq('id', debtorId);
       }
 
       const { error: historyError } = await supabase
         .from('history_entries')
-        .insert([{
+        .insert(debtsArray.map(debt => ({
           user_id: session.user.id,
           debtor_id: debtorId,
           type: 'Divida',
-          category: newDebt.category,
-          amount: newDebt.amount,
-          date: newDebt.date,
-          description: newDebt.description
-        }]);
+          category: debt.category,
+          amount: debt.amount,
+          date: debt.date,
+          description: debt.description
+        })));
 
       if (historyError) throw historyError;
 
@@ -311,6 +313,8 @@ function App() {
         return <SettleDebt {...commonProps} debtors={debtors} selectedDebtorId={selectedDebtorId} onPaymentConfirm={registerPayment} />;
       case 'reports':
         return <Reports {...commonProps} history={history} />;
+      case 'settings':
+        return <Settings {...commonProps} />;
       default:
         return <LandingPage onStart={() => navigate('dashboard')} />;
     }
