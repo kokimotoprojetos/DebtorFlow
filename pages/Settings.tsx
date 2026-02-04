@@ -19,6 +19,9 @@ const Settings: React.FC<SettingsProps> = ({ navigate, toggleDarkMode, isDarkMod
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         fetchSettings();
@@ -81,6 +84,33 @@ const Settings: React.FC<SettingsProps> = ({ navigate, toggleDarkMode, isDarkMod
             setMessage({ text: 'Erro ao alterar senha. Verifique os requisitos.', type: 'error' });
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (deleteConfirmation !== 'DELETE') return;
+        setIsDeleting(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            // Delete all user data
+            await supabase.from('history_entries').delete().eq('user_id', user.id);
+            await supabase.from('debts').delete().eq('user_id', user.id);
+            await supabase.from('debtors').delete().eq('user_id', user.id);
+            await supabase.from('user_settings').delete().eq('user_id', user.id);
+
+            // Sign out and redirect
+            await supabase.auth.signOut();
+            if (onLogout) onLogout();
+            else navigate('landing');
+
+        } catch (err) {
+            console.error('Error deleting account:', err);
+            setMessage({ text: 'Erro ao excluir dados. Tente novamente.', type: 'error' });
+            setIsDeleteModalOpen(false);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -210,6 +240,59 @@ const Settings: React.FC<SettingsProps> = ({ navigate, toggleDarkMode, isDarkMod
                                     {isSaving ? 'Alterando...' : 'Alterar Senha'}
                                 </button>
                             </form>
+                        </div>
+
+                        {/* Danger Zone */}
+                        <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 p-6 rounded-3xl flex flex-col gap-4">
+                            <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
+                                <span className="material-symbols-outlined" translate="no">warning</span>
+                                <h2 className="font-bold uppercase tracking-widest text-xs">Zona de Perigo</h2>
+                            </div>
+
+                            <p className="text-sm text-red-600/80 dark:text-red-400/80">
+                                A exclusão da conta é irreversível. Todos os seus dados, devedores e histórico serão apagados permanentemente.
+                            </p>
+
+                            {!isDeleteModalOpen ? (
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(true)}
+                                    className="bg-white text-red-600 border border-red-200 hover:bg-red-50 font-bold h-11 rounded-xl transition-all self-start px-6"
+                                >
+                                    Excluir Minha Conta
+                                </button>
+                            ) : (
+                                <div className="bg-white dark:bg-black/20 p-4 rounded-xl border border-red-200 dark:border-red-800/50 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2">
+                                    <p className="text-sm font-bold text-red-600 dark:text-red-400">
+                                        Para confirmar, digite <span className="font-black select-all">DELETE</span> abaixo:
+                                    </p>
+                                    <input
+                                        type="text"
+                                        value={deleteConfirmation}
+                                        onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                        className="h-11 rounded-xl border-red-200 focus:border-red-500 focus:ring-red-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                        placeholder="Digite DELETE para confirmar"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleDeleteAccount}
+                                            disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+                                            className="flex-1 bg-red-600 text-white h-11 rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        >
+                                            {isDeleting ? 'Excluindo...' : 'Confirmar Exclusão'}
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setIsDeleteModalOpen(false);
+                                                setDeleteConfirmation('');
+                                            }}
+                                            disabled={isDeleting}
+                                            className="px-6 bg-gray-100 text-gray-600 h-11 rounded-xl font-bold hover:bg-gray-200 transition-all dark:bg-gray-800 dark:text-gray-400"
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="p-6 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-2xl">
